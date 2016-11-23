@@ -49,12 +49,19 @@ public class MemoryButton extends Button{
         setBackground(backOfCard);
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(Row),GridLayout.spec(Column));
-        params.width = (int) getResources().getDisplayMetrics().density * 110;
-        params.height = (int) getResources().getDisplayMetrics().density * 145;
-        //LayoutInflator
+        //2*2
+//        params.width = (int) getResources().getDisplayMetrics().density * 200;
+//        params.height = (int) getResources().getDisplayMetrics().density * 200;
 
+        //4*4
+        // params.width = (int) getResources().getDisplayMetrics().density * 110;
+        //params.height = (int) getResources().getDisplayMetrics().density * 145;
 
+        //6*6
+        params.width = (int) getResources().getDisplayMetrics().density * 75;
+        params.height = (int) getResources().getDisplayMetrics().density * 75;
 
+        //Must use a layout infaltor
         //params.setGravity(100); - Need to strech children in grid layout to the entire screen
         setLayoutParams(params);
     }
