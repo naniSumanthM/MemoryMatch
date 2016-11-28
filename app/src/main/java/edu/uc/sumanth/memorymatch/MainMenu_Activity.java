@@ -10,7 +10,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-
 public class MainMenu_Activity extends AppCompatActivity {
     //Class is used to dictate what the button clicks do on the mainActivity
     //GameBoard size options
@@ -68,6 +67,8 @@ public class MainMenu_Activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //ToDO: Logic to reset the game board
+                //Need to set the background of all cards to back
+                //then randomize the cards again
             }
         });
 
@@ -84,7 +85,7 @@ public class MainMenu_Activity extends AppCompatActivity {
     //Toast methods
     public void toast2x2() {
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Come On", Toast.LENGTH_SHORT);
+                "Come On!", Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.END | Gravity.CENTER, 0, 0);
         toast.show();
     }
@@ -98,7 +99,7 @@ public class MainMenu_Activity extends AppCompatActivity {
 
     public void toast6x6() {
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Dayum!", Toast.LENGTH_SHORT);
+                "Ohhh!", Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.END | Gravity.CENTER, 0, 0);
         toast.show();
     }

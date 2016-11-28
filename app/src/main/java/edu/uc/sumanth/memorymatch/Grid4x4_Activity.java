@@ -1,11 +1,15 @@
 package edu.uc.sumanth.memorymatch;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatDrawableManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -69,6 +73,51 @@ public class Grid4x4_Activity extends AppCompatActivity
             }
         }
 
+    }
+
+    //Menu Bar
+
+    //Inflate the Menu widgets
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_4x4,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //Logic for the home and the reset btn
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.it_home4x4: goHome();
+
+            case R.id.it_refresh4x4: reset4x4Grid();
+
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void goHome()
+    {
+        Intent mainMenu= new Intent(Grid4x4_Activity.this, MainMenu_Activity.class);
+        startActivity(mainMenu);
+    }
+
+    //Launch a new Grid2x2_Activity since it contains the logic to randomize and rotate the cards
+    public void reset4x4Grid()
+    {
+        if (android.os.Build.VERSION.SDK_INT >= 11)
+        {
+            super.recreate();
+        }
+        else
+        {
+            startActivity(getIntent());
+            finish();
+        }
     }
 
     public void randomizeButtonGraphics() {
