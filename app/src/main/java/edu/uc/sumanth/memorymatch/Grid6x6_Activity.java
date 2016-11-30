@@ -1,6 +1,8 @@
 package edu.uc.sumanth.memorymatch;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -33,6 +35,13 @@ public class Grid6x6_Activity extends AppCompatActivity
 
     //Used for creating the delay
     public boolean isProcessing = false;
+
+    //added variables
+    public final int  FINAL_MATCHES = 18;
+    public int correctMatch;
+    public int incorrectMatch;
+    public long startTime;
+    public String congratMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,7 +195,9 @@ public class Grid6x6_Activity extends AppCompatActivity
         if (selectedButton1.getId() == button.getId()) {
             return;
         }
-
+        if (correctMatch == 0 && incorrectMatch == 0){
+            startTime = System.currentTimeMillis();
+        }
         if (selectedButton1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
             //User matches two cards
             button.rotate();
@@ -195,13 +206,48 @@ public class Grid6x6_Activity extends AppCompatActivity
             button.setEnabled(false);
             selectedButton1 = null;
             matchToast();
+            //added code for game completion
+            correctMatch++;
 
+            if (correctMatch == FINAL_MATCHES){
+                int matchScore = correctMatch + incorrectMatch;
+                long stopTime = System.currentTimeMillis();
+                long elapsedTimeSeconds = (stopTime - startTime) / 1000;
+                long elapsedTimeMinutes = elapsedTimeSeconds/ 60;
+                elapsedTimeSeconds = elapsedTimeSeconds % 60;
+                if (elapsedTimeMinutes > 0){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else {
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Result")
+                        .setMessage(congratMessage)
+                        .setNegativeButton("Play Again", new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                reset6x6Grid();;
+                            }
+                        })
+                        .setPositiveButton("Go to Main Menu", new DialogInterface.OnClickListener(){
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent mainMenu = new Intent(Grid6x6_Activity.this, MainMenu_Activity.class);
+                                startActivity(mainMenu);
+                            }
+                        }).create().show();
+
+            }
             return;
-        } else {
+        }
+        else {
             //User fails to match two cards
             selectedButton2 = button;
             selectedButton2.rotate();
             isProcessing = true;
+            incorrectMatch++;
 
             handler.postDelayed(new Runnable() {
                 @Override

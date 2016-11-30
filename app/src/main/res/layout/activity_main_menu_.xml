@@ -69,16 +69,16 @@
     </RadioGroup>
 
     <Button
+        android:text="SAVE PREFERENCE"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_save" />
+
+    <Button
         android:text="START GAME"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/button_start" />
-
-    <Button
-        android:text="RSET GAME"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_reset" />
 
     <Button
         android:text="EXIT GAME"

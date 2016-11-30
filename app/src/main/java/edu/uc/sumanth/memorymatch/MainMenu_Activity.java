@@ -1,6 +1,8 @@
 package edu.uc.sumanth.memorymatch;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -15,64 +17,63 @@ public class MainMenu_Activity extends AppCompatActivity {
     //GameBoard size options
 
     private RadioGroup gridGroup;
-    private RadioButton rb_2x2, rb_4x4, rb_6x6;
-    private Button btnStart, btnExit, btnReset;
+    private RadioButton rb_selectedGrid;
+    private Button btnStart, btnExit, btnSave;
+    SharedPreferences saveGridSize, getSavedGridSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu_);
 
-        //References to the radio group widgets
-        gridGroup = (RadioGroup) findViewById(R.id.GridGroup);
-        rb_2x2 = (RadioButton) findViewById(R.id.rb_2x2);
-        rb_4x4 = (RadioButton) findViewById(R.id.rb_4x4);
-        rb_6x6 = (RadioButton) findViewById(R.id.rb_6x6);
+        saveGridSize = getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+        gridGroup = (RadioGroup)findViewById(R.id.GridGroup);
+        btnSave = (Button)findViewById(R.id.button_save);
 
-        gridGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        //User is expected to save hsi grid choice before starting the game, if the user starts the game without making a choice
+        // "THE LAST SAVED PREFERENCE IS AUTOMATICALLY FIRED".
+        btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (checkedId == R.id.rb_2x2) {
-                    toast2x2();
-                } else if (checkedId == R.id.rb_4x4) {
-                    toast4x4();
-                } else {
-                    toast6x6();
-                }
+            public void onClick(View v) {
+                int selectedRadioButtonId = gridGroup.getCheckedRadioButtonId();
+                rb_selectedGrid = (RadioButton)findViewById(selectedRadioButtonId);
+                String selectedRadioButtonText = rb_selectedGrid.getText().toString();
+                SharedPreferences.Editor editor = saveGridSize.edit();
+                editor.putString("gridKey",selectedRadioButtonText);
+                editor.commit();
             }
         });
 
-        btnStart = (Button) findViewById(R.id.button_start);
-        btnStart.setOnClickListener(new View.OnClickListener() {
+        //Start Game button and reference - Inspects the saved preference and fires the respective grid size
+        btnStart=(Button)findViewById(R.id.button_start);
+        btnStart.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
-                int selectedGridSize = gridGroup.getCheckedRadioButtonId();
-
-                if (selectedGridSize == rb_2x2.getId()) {
+            public void onClick(View v)
+            {
+                getSavedGridSize = getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
+                String userGridChoice = getSavedGridSize.getString("gridKey","4X4 GRID"); //(key, defaultValue) - 2x2 grid size is chosen for the first time if the user did not make a choice
+                if(userGridChoice.equals("2X2 GRID"))
+                {
+                    toast2x2();
                     Intent twoByTwo = new Intent(MainMenu_Activity.this, Grid2x2_Activity.class);
                     startActivity(twoByTwo);
-                } else if (selectedGridSize == rb_4x4.getId()) {
+                }
+                else if(userGridChoice.equals("4X4 GRID"))
+                {
+                    toast4x4();
                     Intent fourByFour = new Intent(MainMenu_Activity.this, Grid4x4_Activity.class);
                     startActivity(fourByFour);
-                } else {
+                }
+                else
+                {
+                    toast6x6();
                     Intent sixBySix = new Intent(MainMenu_Activity.this, Grid6x6_Activity.class);
                     startActivity(sixBySix);
                 }
             }
         });
 
-        //set reference to the reset button and define the logic of game reset
-        btnReset = (Button) findViewById(R.id.button_reset);
-        btnReset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //ToDO: Logic to reset the game board
-                //Need to set the background of all cards to back
-                //then randomize the cards again
-            }
-        });
-
-        //set reference to exit button
         btnExit = (Button) findViewById(R.id.button_exit);
         btnExit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -85,22 +86,19 @@ public class MainMenu_Activity extends AppCompatActivity {
     //Toast methods
     public void toast2x2() {
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Come On!", Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.END | Gravity.CENTER, 0, 0);
+                "Starting the baby gird! ", Toast.LENGTH_SHORT);
         toast.show();
     }
 
     public void toast4x4() {
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Ok!", Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.END | Gravity.CENTER, 0, 0);
+                "Starting an acceptable grid!", Toast.LENGTH_SHORT);
         toast.show();
     }
 
     public void toast6x6() {
         Toast toast = Toast.makeText(getApplicationContext(),
-                "Ohhh!", Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.END | Gravity.CENTER, 0, 0);
+                "Starting a too BIG gird!", Toast.LENGTH_SHORT);
         toast.show();
     }
 }
