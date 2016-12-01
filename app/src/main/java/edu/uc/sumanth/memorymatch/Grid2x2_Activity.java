@@ -23,14 +23,13 @@ import java.util.Random;
 public class Grid2x2_Activity extends AppCompatActivity
         implements View.OnClickListener {
 
-    public int numberOfElements;
-    public MemoryButton[] buttonCollection;
+    public MemoryButton selected2By2Button1,selectedButton2By2Button2;
+    public int numberOf2By2Drawables;
+    public MemoryButton[] button2By2Collection;
 
-    public int[] buttonGraphicLocations;
-    public int[] buttonGraphics;
-
-    public MemoryButton selectedButton1;
-    public MemoryButton selectedButton2;
+    //buttonDrawableLocations-An int array that holds the unique combinations of cards we have 16/2 = 8 combinations
+    //buttonDrawables-An int array that holds the id's of the drawable files we have in the res/drawable
+    public int[] buttonGraphicLocations,buttonGraphics;
 
     public boolean isProcessing = false;
 
@@ -50,22 +49,24 @@ public class Grid2x2_Activity extends AppCompatActivity
         int totalColumns = gridLayout.getColumnCount();
         int totalRows = gridLayout.getRowCount();
 
-        numberOfElements = (totalColumns * totalRows);
-        buttonCollection = new MemoryButton[numberOfElements];
+        numberOf2By2Drawables = (totalColumns * totalRows);
+        button2By2Collection = new MemoryButton[numberOf2By2Drawables];
 
-        buttonGraphics = new int[(numberOfElements / 2)];
+        buttonGraphics = new int[(numberOf2By2Drawables / 2)];
         buttonGraphics[0] = R.drawable.front_18;
         buttonGraphics[1] = R.drawable.front_21;
 
-        buttonGraphicLocations = new int[numberOfElements];
+        buttonGraphicLocations = new int[numberOf2By2Drawables];
         randomizeButtonGraphics();
 
-        for (int r = 0; r < totalRows; r++) {
-            for (int c = 0; c < totalColumns; c++) {
-                MemoryButton tempButton = new MemoryButton(this, r, c, buttonGraphics[buttonGraphicLocations[r * totalColumns + c]]);
+        for (int row = 0; row < totalRows; row++)
+        {
+            for (int column = 0; column < totalColumns; column++)
+            {
+                MemoryButton tempButton = new MemoryButton(this, row, column, buttonGraphics[buttonGraphicLocations[row * totalColumns + column]]);
                 tempButton.setId(View.generateViewId());
                 tempButton.setOnClickListener(this);
-                buttonCollection[r * totalColumns + c] = tempButton; //Storing the references
+                button2By2Collection[row * totalColumns + column] = tempButton; //Storing the references
                 gridLayout.addView(tempButton);
             }
         }
@@ -117,11 +118,11 @@ public class Grid2x2_Activity extends AppCompatActivity
 
     public void randomizeButtonGraphics() {
         Random rnd = new Random();
-        for (int i = 0; i < numberOfElements; i++) {
-            buttonGraphicLocations[i] = (i % (numberOfElements / 2));
+        for (int i = 0; i < numberOf2By2Drawables; i++) {
+            buttonGraphicLocations[i] = (i % (numberOf2By2Drawables / 2));
         }
 
-        for (int i = 0; i < numberOfElements; i++) {
+        for (int i = 0; i < numberOf2By2Drawables; i++) {
             int temp = buttonGraphicLocations[i];
             int swapIndex = rnd.nextInt(4);
             buttonGraphicLocations[i] = buttonGraphicLocations[swapIndex];
@@ -162,25 +163,25 @@ public class Grid2x2_Activity extends AppCompatActivity
             return;
         }
 
-        if (selectedButton1 == null) {
-            selectedButton1 = button;
-            selectedButton1.rotate();
+        if (selected2By2Button1 == null) {
+            selected2By2Button1 = button;
+            selected2By2Button1.rotate();
             return;
         }
 
-        if (selectedButton1.getId() == button.getId()) {
+        if (selected2By2Button1.getId() == button.getId()) {
             return;
         }
         if (correctMatch == 0 && incorrectMatch == 0){
             startTime = System.currentTimeMillis();
         }
-        if (selectedButton1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
+        if (selected2By2Button1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
             //User matches two cards
             button.rotate();
             button.setMatched(true);
-            selectedButton1.setEnabled(false);
+            selected2By2Button1.setEnabled(false);
             button.setEnabled(false);
-            selectedButton1 = null;
+            selected2By2Button1 = null;
             matchToast();
             //added code for game completion
             correctMatch++;
@@ -188,16 +189,23 @@ public class Grid2x2_Activity extends AppCompatActivity
             if (correctMatch == FINAL_MATCHES){
                 int matchScore = correctMatch + incorrectMatch;
                 long stopTime = System.currentTimeMillis();
-                long elapsedTimeSeconds = (stopTime - startTime) / 1000;
+                long elapsedTimeMilliSeconds = (stopTime - startTime) / 10;
+                long elapsedTimeSeconds = elapsedTimeMilliSeconds / 100;
                 long elapsedTimeMinutes = elapsedTimeSeconds/ 60;
                 elapsedTimeSeconds = elapsedTimeSeconds % 60;
-                if (elapsedTimeMinutes > 0){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                elapsedTimeMilliSeconds = elapsedTimeMilliSeconds % 100;
+                if (elapsedTimeMinutes > 0 && elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeMinutes > 0){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else {
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
-
                 new AlertDialog.Builder(this)
                         .setTitle("Result")
                         .setMessage(congratMessage)
@@ -222,18 +230,18 @@ public class Grid2x2_Activity extends AppCompatActivity
         }
         else {
             //User fails to match two cards
-            selectedButton2 = button;
-            selectedButton2.rotate();
+            selectedButton2By2Button2 = button;
+            selectedButton2By2Button2.rotate();
             isProcessing = true;
             incorrectMatch++;
 
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    selectedButton2.rotate();
-                    selectedButton1.rotate();
-                    selectedButton1 = null;
-                    selectedButton2 = null;
+                    selectedButton2By2Button2.rotate();
+                    selected2By2Button1.rotate();
+                    selected2By2Button1 = null;
+                    selectedButton2By2Button2 = null;
                     isProcessing = false;
                 }
             }, 400);
@@ -245,13 +253,13 @@ public class Grid2x2_Activity extends AppCompatActivity
 class MemoryButton extends Button {
 
     //variables to reference the row and column, and the id of the faced down card
-    public int row;
-    public int column;
-    public int frontDrawableValue;
+    public int row_2By2,column_2By2;
+
+    //id of the front drawable value
+    public int front2By2DrawableValue;
 
     //Reference to the drawable objects()
-    public Drawable frontOfCard;
-    public Drawable backOfCard;
+    public Drawable front2By2Card,backOfCard;
 
     //variables to define the Actions a user can encounter
     public boolean isRotated = false;
@@ -264,12 +272,12 @@ class MemoryButton extends Button {
         super(context);
 
         //This= MemoryButton
-        this.row = Row;
-        this.column = Column;
-        this.frontDrawableValue = FrontDrawableValue;
+        this.row_2By2 = Row;
+        this.column_2By2 = Column;
+        this.front2By2DrawableValue = FrontDrawableValue;
 
         //initialize the front & back of the card
-        frontOfCard = AppCompatDrawableManager.get().getDrawable(context, frontDrawableValue);
+        front2By2Card = AppCompatDrawableManager.get().getDrawable(context, front2By2DrawableValue);
         backOfCard = AppCompatDrawableManager.get().getDrawable(context, R.drawable.back);
         setBackground(backOfCard);
 
@@ -277,12 +285,15 @@ class MemoryButton extends Button {
         params.width = (int) getResources().getDisplayMetrics().density * 240;
         params.height = (int) getResources().getDisplayMetrics().density * 350;
 
-        //225*325 - with margin
-        //240*350 - without margin
         setLayoutParams(params);
     }
 
     //setters and getters for the primitives
+
+    //get: frontDrawableValue (ID)
+    public int getFrontDrawableValue(){
+        return front2By2DrawableValue;
+    }
 
     //get: isMatched()
     public boolean isMatched(){
@@ -294,33 +305,28 @@ class MemoryButton extends Button {
         isMatched = matched;
     }
 
-    //get: frontDrawableValue (ID)
-    public int getFrontDrawableValue(){
-        return frontDrawableValue;
-    }
-
     //Logic: Rotate
     public void rotate()
     {
-        if(isMatched){
-            //doNothing since the user did not match.
-            //In this case the user revealed two cards that are an incorrect match.
-            return;
-        }
-        else{
-            //We assume the user matched
-        }
-
-        if(isRotated){
+        if(isRotated)
+        {
             //doNothing if the user did not rotate any card and keep the card faced down.
             setBackground(backOfCard);
             isRotated = false;
         }
-        else{
+        else
+        {
             //if the userRotated the card then set the isRotated to true for a duration of Time
             //Reveal the card
-            setBackground(frontOfCard);
+            setBackground(front2By2Card);
             isRotated = true;
+        }
+
+        if(isMatched){
+            //doNothing since the user did not match.
+            //In this case the user revealed two cards that are an incorrect match.
+            //We rotate the cards to not show faced down image
+            return;
         }
     }
 }

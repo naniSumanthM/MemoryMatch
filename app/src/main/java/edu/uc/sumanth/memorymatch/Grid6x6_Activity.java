@@ -22,16 +22,14 @@ import java.util.Random;
 public class Grid6x6_Activity extends AppCompatActivity
         implements View.OnClickListener {
 
-    public int numberOfElements;
+    public MemoryButtonC selected6By6Button1,selected6By6Button2;
+
+    public int numberOf6By6Drawables;
     public MemoryButtonC[] buttonCollection;
 
     //buttonGraphicLocations - unique combinations of cards we have
-    public int[] buttonGraphicLocations;
     //buttonGraphics - The original R.ID.Drawable id's for the individual pictures we have
-    public int[] buttonGraphics;
-
-    public MemoryButtonC selectedButton1;
-    public MemoryButtonC selectedButton2;
+    public int[] buttonDrawableLocations,buttonDrawables;
 
     //Used for creating the delay
     public boolean isProcessing = false;
@@ -54,40 +52,42 @@ public class Grid6x6_Activity extends AppCompatActivity
         int totalColumns = gridLayout.getColumnCount();
         int totalRows = gridLayout.getRowCount();
 
-        numberOfElements = (totalColumns * totalRows);
-        buttonCollection = new MemoryButtonC[numberOfElements];
+        numberOf6By6Drawables = (totalColumns * totalRows);
+        buttonCollection = new MemoryButtonC[numberOf6By6Drawables];
 
         //only stores the unique cards
-        buttonGraphics = new int[(numberOfElements / 2)];
+        buttonDrawables = new int[(numberOf6By6Drawables / 2)];
 
-        buttonGraphics[0] = R.drawable.front_1;
-        buttonGraphics[1] = R.drawable.front_2;
-        buttonGraphics[2] = R.drawable.front_3;
-        buttonGraphics[3] = R.drawable.front_4;
-        buttonGraphics[4] = R.drawable.front_5;
-        buttonGraphics[5] = R.drawable.front_6;
-        buttonGraphics[6] = R.drawable.front_7;
-        buttonGraphics[7] = R.drawable.front_8;
-        buttonGraphics[8] = R.drawable.front_9;
-        buttonGraphics[9] = R.drawable.front_10;
-        buttonGraphics[10] = R.drawable.front_11;
-        buttonGraphics[11] = R.drawable.front_12;
-        buttonGraphics[12] = R.drawable.front_13;
-        buttonGraphics[13] = R.drawable.front_14;
-        buttonGraphics[14] = R.drawable.front_15;
-        buttonGraphics[15] = R.drawable.front_16;
-        buttonGraphics[16] = R.drawable.front_17;
-        buttonGraphics[17] = R.drawable.front_18;
+        buttonDrawables[0] = R.drawable.front_1;
+        buttonDrawables[1] = R.drawable.front_2;
+        buttonDrawables[2] = R.drawable.front_3;
+        buttonDrawables[3] = R.drawable.front_4;
+        buttonDrawables[4] = R.drawable.front_5;
+        buttonDrawables[5] = R.drawable.front_6;
+        buttonDrawables[6] = R.drawable.front_7;
+        buttonDrawables[7] = R.drawable.front_8;
+        buttonDrawables[8] = R.drawable.front_9;
+        buttonDrawables[9] = R.drawable.front_10;
+        buttonDrawables[10] = R.drawable.front_11;
+        buttonDrawables[11] = R.drawable.front_12;
+        buttonDrawables[12] = R.drawable.front_13;
+        buttonDrawables[13] = R.drawable.front_14;
+        buttonDrawables[14] = R.drawable.front_15;
+        buttonDrawables[15] = R.drawable.front_16;
+        buttonDrawables[16] = R.drawable.front_17;
+        buttonDrawables[17] = R.drawable.front_18;
 
-        buttonGraphicLocations = new int[numberOfElements];
+        buttonDrawableLocations = new int[numberOf6By6Drawables];
         randomizeButtonGraphics();
 
-        for (int r = 0; r < totalRows; r++) {
-            for (int c = 0; c < totalColumns; c++) {
-                MemoryButtonC tempButton = new MemoryButtonC(this, r, c, buttonGraphics[buttonGraphicLocations[r * totalColumns + c]]);
+        for (int r = 0; r < totalRows; r++)
+        {
+            for (int c = 0; c < totalColumns; c++)
+            {
+                MemoryButtonC tempButton = new MemoryButtonC(this, r, c, buttonDrawables[buttonDrawableLocations[r * totalColumns + c]]);
                 tempButton.setId(View.generateViewId());
                 tempButton.setOnClickListener(this);
-                buttonCollection[r * totalColumns + c] = tempButton; //Storing the references
+                buttonCollection[r * totalColumns + c] = tempButton;
                 gridLayout.addView(tempButton);
             }
         }
@@ -140,15 +140,15 @@ public class Grid6x6_Activity extends AppCompatActivity
 
     public void randomizeButtonGraphics() {
         Random rnd = new Random();
-        for (int i = 0; i < numberOfElements; i++) {
-            buttonGraphicLocations[i] = (i % (numberOfElements / 2));
+        for (int i = 0; i < numberOf6By6Drawables; i++) {
+            buttonDrawableLocations[i] = (i % (numberOf6By6Drawables / 2));
         }
 
-        for (int i = 0; i < numberOfElements; i++) {
-            int temp = buttonGraphicLocations[i];
+        for (int i = 0; i < numberOf6By6Drawables; i++) {
+            int temp = buttonDrawableLocations[i];
             int swapIndex = rnd.nextInt(36);
-            buttonGraphicLocations[i] = buttonGraphicLocations[swapIndex];
-            buttonGraphicLocations[swapIndex] = temp;
+            buttonDrawableLocations[i] = buttonDrawableLocations[swapIndex];
+            buttonDrawableLocations[swapIndex] = temp;
         }
     }
 
@@ -186,25 +186,25 @@ public class Grid6x6_Activity extends AppCompatActivity
             return;
         }
 
-        if (selectedButton1 == null) {
-            selectedButton1 = button;
-            selectedButton1.rotate();
+        if (selected6By6Button1 == null) {
+            selected6By6Button1 = button;
+            selected6By6Button1.rotate();
             return;
         }
 
-        if (selectedButton1.getId() == button.getId()) {
+        if (selected6By6Button1.getId() == button.getId()) {
             return;
         }
         if (correctMatch == 0 && incorrectMatch == 0){
             startTime = System.currentTimeMillis();
         }
-        if (selectedButton1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
+        if (selected6By6Button1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
             //User matches two cards
             button.rotate();
             button.setMatched(true);
-            selectedButton1.setEnabled(false);
+            selected6By6Button1.setEnabled(false);
             button.setEnabled(false);
-            selectedButton1 = null;
+            selected6By6Button1 = null;
             matchToast();
             //added code for game completion
             correctMatch++;
@@ -212,14 +212,22 @@ public class Grid6x6_Activity extends AppCompatActivity
             if (correctMatch == FINAL_MATCHES){
                 int matchScore = correctMatch + incorrectMatch;
                 long stopTime = System.currentTimeMillis();
-                long elapsedTimeSeconds = (stopTime - startTime) / 1000;
+                long elapsedTimeMilliSeconds = (stopTime - startTime) / 10;
+                long elapsedTimeSeconds = elapsedTimeMilliSeconds / 100;
                 long elapsedTimeMinutes = elapsedTimeSeconds/ 60;
                 elapsedTimeSeconds = elapsedTimeSeconds % 60;
-                if (elapsedTimeMinutes > 0){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                elapsedTimeMilliSeconds = elapsedTimeMilliSeconds % 100;
+                if (elapsedTimeMinutes > 0 && elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeMinutes > 0){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else {
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
 
                 new AlertDialog.Builder(this)
@@ -244,18 +252,18 @@ public class Grid6x6_Activity extends AppCompatActivity
         }
         else {
             //User fails to match two cards
-            selectedButton2 = button;
-            selectedButton2.rotate();
+            selected6By6Button2 = button;
+            selected6By6Button2.rotate();
             isProcessing = true;
             incorrectMatch++;
 
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    selectedButton2.rotate();
-                    selectedButton1.rotate();
-                    selectedButton1 = null;
-                    selectedButton2 = null;
+                    selected6By6Button2.rotate();
+                    selected6By6Button1.rotate();
+                    selected6By6Button1 = null;
+                    selected6By6Button2 = null;
                     isProcessing = false;
                 }
             }, 400);
@@ -267,13 +275,11 @@ public class Grid6x6_Activity extends AppCompatActivity
 class MemoryButtonC extends Button {
 
     //variables to reference the row and column, and the id of the faced down card
-    public int row;
-    public int column;
-    public int frontDrawableValue;
+    public int row_6By6,column_6By6;
+    public int front6By6DrawableValue;
 
     //Reference to the drawable objects()
-    public Drawable frontOfCard;
-    public Drawable backOfCard;
+    public Drawable front6By6Card,backOfCard;
 
     //variables to define the Actions a user can encounter
     public boolean isRotated = false;
@@ -285,12 +291,12 @@ class MemoryButtonC extends Button {
         super(context);
 
         //This= MemoryButton
-        this.row = Row;
-        this.column = Column;
-        this.frontDrawableValue = FrontDrawableValue;
+        this.row_6By6 = Row;
+        this.column_6By6 = Column;
+        this.front6By6DrawableValue = FrontDrawableValue;
 
         //initialize the front & back of the card
-        frontOfCard = AppCompatDrawableManager.get().getDrawable(context, frontDrawableValue);
+        front6By6Card = AppCompatDrawableManager.get().getDrawable(context, front6By6DrawableValue);
         backOfCard = AppCompatDrawableManager.get().getDrawable(context, R.drawable.back);
         setBackground(backOfCard);
 
@@ -303,6 +309,11 @@ class MemoryButtonC extends Button {
 
     //setters and getters for the primitives
 
+    //get: frontDrawableValue (ID)
+    public int getFrontDrawableValue() {
+        return front6By6DrawableValue;
+    }
+
     //get: isMatched()
     public boolean isMatched() {
         return isMatched;
@@ -313,30 +324,30 @@ class MemoryButtonC extends Button {
         isMatched = matched;
     }
 
-    //get: frontDrawableValue (ID)
-    public int getFrontDrawableValue() {
-        return frontDrawableValue;
-    }
-
     //Logic: Rotate
-    public void rotate() {
-        if (isMatched) {
-            //doNothing since the user did not match.
-            //In this case the user revealed two cards that are an incorrect match.
-            return;
-        } else {
-            //We assume the user matched
-        }
+    public void rotate()
+    {
 
-        if (isRotated) {
+        if (isRotated)
+        {
             //doNothing if the user did not rotate any card and keep the card faced down.
             setBackground(backOfCard);
             isRotated = false;
-        } else {
+        }
+        else
+        {
             //if the userRotated the card then set the isRotated to true for a duration of Time
             //Reveal the card
-            setBackground(frontOfCard);
+            setBackground(front6By6Card);
             isRotated = true;
+        }
+
+        if (isMatched)
+        {
+            //doNothing since the user did not match.
+            //In this case the user revealed two cards that are an incorrect match.
+            //We rotate the cards to not show faced down image
+            return;
         }
     }
 }

@@ -4,4 +4,8 @@
     <string name="option_2x2">2x2</string>
     <string name="option_4x4">4x4</string>
     <string name="option_6x6">6x6</string>
+    <string name="toastA">Starting the baby gird!</string>
+    <string name ="toastB">Starting an acceptable grid!</string>
+    <string name="toastC">Starting BIG gird!</string>
+
 </resources>

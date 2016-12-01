@@ -22,21 +22,19 @@ import java.util.Random;
 public class Grid4x4_Activity extends AppCompatActivity
         implements View.OnClickListener {
 
-    public int numberOfElements;
-    public MemoryButtonB[] buttonCollection;
+    public MemoryButtonB selected4By4Button1,selected4By4Button2;
 
-    //buttonGraphicLocations - unique combinations of cards we have
-    public int[] buttonGraphicLocations;
-    //buttonGraphics - The original R.ID.Drawable id's for the individual pictures we have
-    public int[] buttonGraphics;
+    public int numberOf4By4Drawables;
+    public MemoryButtonB[] button4By4Collection;
 
-    public MemoryButtonB selectedButton1;
-    public MemoryButtonB selectedButton2;
+    //buttonDrawableLocations-An int array that holds the unique combinations of cards we have 16/2 = 8 combinations
+    //buttonDrawables-An int array that holds the id's of the drawable files we have in the res/drawable
+    public int[] buttonDrawableLocations, buttonDrawables;
 
-    //Used for creating the delay
+    //Used for creating the delay when cards are rotated
     public boolean isProcessing = false;
 
-    //added variables
+    //added variables - Parker Hughes
     public final int  FINAL_MATCHES = 8;
     public int correctMatch;
     public int incorrectMatch;
@@ -44,41 +42,47 @@ public class Grid4x4_Activity extends AppCompatActivity
     public String congratMessage;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid4x4_);
 
-        GridLayout gridLayout = (GridLayout) findViewById(R.id.activity_grid4x4_);
+        GridLayout gridLayout_4x4 = (GridLayout) findViewById(R.id.activity_grid4x4_);
 
         //#of Columns & Rows
-        int totalColumns = gridLayout.getColumnCount();
-        int totalRows = gridLayout.getRowCount();
+        int totalColumns = gridLayout_4x4.getColumnCount();
+        int totalRows = gridLayout_4x4.getRowCount();
 
-        numberOfElements = (totalColumns * totalRows);
-        buttonCollection = new MemoryButtonB[numberOfElements];
+        numberOf4By4Drawables = (totalColumns * totalRows);
+        button4By4Collection = new MemoryButtonB[numberOf4By4Drawables];
 
         //only stores the unique cards
-        buttonGraphics = new int[(numberOfElements / 2)];
+        buttonDrawables = new int[(numberOf4By4Drawables / 2)];
 
-        buttonGraphics[0] = R.drawable.front_1;
-        buttonGraphics[1] = R.drawable.front_2;
-        buttonGraphics[2] = R.drawable.front_3;
-        buttonGraphics[3] = R.drawable.front_4;
-        buttonGraphics[4] = R.drawable.front_5;
-        buttonGraphics[5] = R.drawable.front_6;
-        buttonGraphics[6] = R.drawable.front_7;
-        buttonGraphics[7] = R.drawable.front_8;
+        buttonDrawables[0] = R.drawable.front_1;
+        buttonDrawables[1] = R.drawable.front_2;
+        buttonDrawables[2] = R.drawable.front_3;
+        buttonDrawables[3] = R.drawable.front_4;
+        buttonDrawables[4] = R.drawable.front_5;
+        buttonDrawables[5] = R.drawable.front_6;
+        buttonDrawables[6] = R.drawable.front_7;
+        buttonDrawables[7] = R.drawable.front_8;
 
-        buttonGraphicLocations = new int[numberOfElements];
-        randomizeButtonGraphics();
+        buttonDrawableLocations = new int[numberOf4By4Drawables];
+        //Method to populate the cards randomly on the grid layout
+        randomize4By4ButtonGraphics();
 
-        for (int r = 0; r < totalRows; r++) {
-            for (int c = 0; c < totalColumns; c++) {
-                MemoryButtonB tempButton = new MemoryButtonB(this, r, c, buttonGraphics[buttonGraphicLocations[r * totalColumns + c]]);
+        //Cascaded for loop to populate the rows and the columns
+        for (int row = 0; row < totalRows; row++)
+        {
+            for (int column = 0; column < totalColumns; column++)
+            {
+                MemoryButtonB tempButton = new MemoryButtonB(this, row, column, buttonDrawables[buttonDrawableLocations[row * totalColumns + column]]);
                 tempButton.setId(View.generateViewId());
                 tempButton.setOnClickListener(this);
-                buttonCollection[r * totalColumns + c] = tempButton; //Storing the references
-                gridLayout.addView(tempButton);
+                //Storing the references
+                button4By4Collection[row * totalColumns + column] = tempButton;
+                gridLayout_4x4.addView(tempButton);
             }
         }
 
@@ -87,6 +91,7 @@ public class Grid4x4_Activity extends AppCompatActivity
     //Menu Bar
 
     //Inflate the Menu widgets
+    //Widgets help the user reset the game or go back to the main menu and pick a new grid
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -129,20 +134,21 @@ public class Grid4x4_Activity extends AppCompatActivity
         }
     }
 
-    public void randomizeButtonGraphics() {
+    public void randomize4By4ButtonGraphics()
+    {
         Random rnd = new Random();
-        for (int i = 0; i < numberOfElements; i++) {
-            buttonGraphicLocations[i] = (i % (numberOfElements / 2));
+        for (int i = 0; i < numberOf4By4Drawables; i++) {
+            buttonDrawableLocations[i] = (i % (numberOf4By4Drawables / 2));
         }
 
-        for (int i = 0; i < numberOfElements; i++) {
-            int temp = buttonGraphicLocations[i];
+        for (int i = 0; i < numberOf4By4Drawables; i++) {
+            int temp = buttonDrawableLocations[i];
             int swapIndex = rnd.nextInt(16);
-            buttonGraphicLocations[i] = buttonGraphicLocations[swapIndex];
-            buttonGraphicLocations[swapIndex] = temp;
+            buttonDrawableLocations[i] = buttonDrawableLocations[swapIndex];
+            buttonDrawableLocations[swapIndex] = temp;
         }
     }
-
+    
     public void matchToast() {
         Context match = getApplicationContext();
         String matchText = "MATCHED!";
@@ -177,40 +183,49 @@ public class Grid4x4_Activity extends AppCompatActivity
             return;
         }
 
-        if (selectedButton1 == null) {
-            selectedButton1 = button;
-            selectedButton1.rotate();
+        if (selected4By4Button1 == null) {
+            selected4By4Button1 = button;
+            selected4By4Button1.rotate();
             return;
         }
 
-        if (selectedButton1.getId() == button.getId()) {
+        if (selected4By4Button1.getId() == button.getId()) {
             return;
         }
         if (correctMatch == 0 && incorrectMatch == 0){
             startTime = System.currentTimeMillis();
         }
-        if (selectedButton1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
+        if (selected4By4Button1.getFrontDrawableValue() == button.getFrontDrawableValue()) {
             //User matches two cards
             button.rotate();
             button.setMatched(true);
-            selectedButton1.setEnabled(false);
+            selected4By4Button1.setEnabled(false);
             button.setEnabled(false);
-            selectedButton1 = null;
+            selected4By4Button1 = null;
             matchToast();
+            //n.matchToast();
             //added code for game completion
             correctMatch++;
 
             if (correctMatch == FINAL_MATCHES){
                 int matchScore = correctMatch + incorrectMatch;
                 long stopTime = System.currentTimeMillis();
-                long elapsedTimeSeconds = (stopTime - startTime) / 1000;
+                long elapsedTimeMilliSeconds = (stopTime - startTime) / 10;
+                long elapsedTimeSeconds = elapsedTimeMilliSeconds / 100;
                 long elapsedTimeMinutes = elapsedTimeSeconds/ 60;
                 elapsedTimeSeconds = elapsedTimeSeconds % 60;
-                if (elapsedTimeMinutes > 0){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                elapsedTimeMilliSeconds = elapsedTimeMilliSeconds % 100;
+                if (elapsedTimeMinutes > 0 && elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeMinutes > 0){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                }
+                else if (elapsedTimeSeconds == 1){
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else {
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
 
                 new AlertDialog.Builder(this)
@@ -236,22 +251,23 @@ public class Grid4x4_Activity extends AppCompatActivity
         }
         else {
             //User fails to match two cards
-            selectedButton2 = button;
-            selectedButton2.rotate();
+            selected4By4Button2 = button;
+            selected4By4Button2.rotate();
             isProcessing = true;
             incorrectMatch++;
 
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    selectedButton2.rotate();
-                    selectedButton1.rotate();
-                    selectedButton1 = null;
-                    selectedButton2 = null;
+                    selected4By4Button2.rotate();
+                    selected4By4Button1.rotate();
+                    selected4By4Button1 = null;
+                    selected4By4Button2 = null;
                     isProcessing = false;
                 }
             }, 400);
             misMatchToast();
+            //n.misMatchToast();
         }
     }
 }
@@ -259,30 +275,31 @@ public class Grid4x4_Activity extends AppCompatActivity
 class MemoryButtonB extends Button {
 
     //variables to reference the row and column, and the id of the faced down card
-    public int row;
-    public int column;
-    public int frontDrawableValue;
+    public int row_4By4,column_4By4;
+
+    //id of the front drawable value
+    public int front4By4DrawableValue;
 
     //Reference to the drawable objects()
-    public Drawable frontOfCard;
-    public Drawable backOfCard;
+    public Drawable front4By4Card,backOfCard;
 
     //variables to define the Actions a user can encounter
     public boolean isRotated = false;
     public boolean isMatched = false;
 
     //Default Constructor
-    public MemoryButtonB(Context context, int Row, int Column, int FrontDrawableValue) {
+    public MemoryButtonB(Context context, int Row, int Column, int FrontDrawableValue)
+    {
         //Parent Class Constructor
         super(context);
 
         //This= MemoryButton
-        this.row = Row;
-        this.column = Column;
-        this.frontDrawableValue = FrontDrawableValue;
+        this.row_4By4 = Row;
+        this.column_4By4 = Column;
+        this.front4By4DrawableValue = FrontDrawableValue;
 
         //initialize the front & back of the card
-        frontOfCard = AppCompatDrawableManager.get().getDrawable(context, frontDrawableValue);
+        front4By4Card = AppCompatDrawableManager.get().getDrawable(context, front4By4DrawableValue);
         backOfCard = AppCompatDrawableManager.get().getDrawable(context, R.drawable.back);
         setBackground(backOfCard);
 
@@ -295,6 +312,11 @@ class MemoryButtonB extends Button {
 
     //setters and getters for the primitives
 
+    //get: frontDrawableValue (ID)
+    public int getFrontDrawableValue() {
+        return front4By4DrawableValue;
+    }
+
     //get: isMatched()
     public boolean isMatched() {
         return isMatched;
@@ -305,30 +327,29 @@ class MemoryButtonB extends Button {
         isMatched = matched;
     }
 
-    //get: frontDrawableValue (ID)
-    public int getFrontDrawableValue() {
-        return frontDrawableValue;
-    }
-
     //Logic: Rotate
-    public void rotate() {
-        if (isMatched) {
-            //doNothing since the user did not match.
-            //In this case the user revealed two cards that are an incorrect match.
-            return;
-        } else {
-            //We assume the user matched
-        }
-
-        if (isRotated) {
+    public void rotate()
+    {
+        if (isRotated)
+        {
             //doNothing if the user did not rotate any card and keep the card faced down.
             setBackground(backOfCard);
             isRotated = false;
-        } else {
+        }
+        else
+        {
             //if the userRotated the card then set the isRotated to true for a duration of Time
             //Reveal the card
-            setBackground(frontOfCard);
+            setBackground(front4By4Card);
             isRotated = true;
+        }
+
+        if (isMatched)
+        {
+            //doNothing since the user did not match.
+            //In this case the user revealed two cards that are an incorrect match.
+            //We rotate the cards to not show faced down image
+            return;
         }
     }
 }
