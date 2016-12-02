@@ -83,17 +83,23 @@ public class Grid6x6_Activity extends AppCompatActivity
 
         //code for action bar height
         int actionBarHeight = 0;
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true)){
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(typedValue.data,getResources().getDisplayMetrics());
-        }
         int statusBarHeight = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if ( resourceId > 0){
+        TypedValue typedValue = new TypedValue();
+
+        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true))
+        {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(typedValue.data,getResources().getDisplayMetrics());
+        }
+
+        if ( resourceId > 0)
+        {
             statusBarHeight = getResources().getDimensionPixelSize(resourceId);
         }
+
         int optionBarsHeight = actionBarHeight + statusBarHeight;
 
+        //Cascaded for loop to populate the rows and the columns on the grid
         for (int r = 0; r < totalRows; r++)
         {
             for (int c = 0; c < totalColumns; c++)

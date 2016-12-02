@@ -70,18 +70,23 @@ public class Grid2x2_Activity extends AppCompatActivity
 
         //code for action bar height
         int actionBarHeight = 0;
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true)){
+
+        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true))
+        {
             actionBarHeight = TypedValue.complexToDimensionPixelSize(typedValue.data,getResources().getDisplayMetrics());
         }
-        int statusBarHeight = 0;
 
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if ( resourceId > 0){
+        if ( resourceId > 0)
+        {
             statusBarHeight = getResources().getDimensionPixelSize(resourceId);
         }
-        int optionBarsHeight = actionBarHeight + statusBarHeight;
 
+        int optionBarsHeight = (actionBarHeight + statusBarHeight);
+
+        //Cascaded for loop to populate the rows and the columns on the grid
         for (int row = 0; row < totalRows; row++)
         {
             for (int column = 0; column < totalColumns; column++)

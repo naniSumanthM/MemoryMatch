@@ -12,6 +12,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+/**
+ * Sources: https://www.youtube.com/watch?v=NS5VzDUrS7A - Shared Preferences
+ * Sources: https://www.youtube.com/watch?v=n04qMWGzqQU - Shared Preferences
+ * Sources: https://www.youtube.com/watch?v=8NoHxfIu0MQ - Grid Layout
+ * Sources: http://stackoverflow.com/questions/7165830/what-is-the-size-of-actionbar-in-pixels
+ * Sources: http://stackoverflow.com/questions/3407256/height-of-status-bar-in-android
+ */
+
+
 public class MainMenu_Activity extends AppCompatActivity {
     //Class is used to dictate what the button clicks do on the mainActivity
     //GameBoard size options
@@ -89,7 +98,8 @@ public class MainMenu_Activity extends AppCompatActivity {
     //Reads the last saved radioButtonPreference
     public void getSharedPreferenceGridSize()
     {
-        //(key, defaultValue) - 2x2 grid size is chosen for the first time if the user did not make a choice
+        //(key, defaultValue) - 4x4 grid size is chosen for the first time if the user did not make a choice
+        //If the app is not installed for the first time the last saved grid size pref will be started assuming the user did not make a choice
         getSavedGridSize = getSharedPreferences("myPrefs",Context.MODE_PRIVATE);
         userGridChoice = getSavedGridSize.getString("gridKey","4X4 GRID");
 
