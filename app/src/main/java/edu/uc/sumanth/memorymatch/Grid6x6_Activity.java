@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatDrawableManager;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,7 +40,7 @@ public class Grid6x6_Activity extends AppCompatActivity
     public int correctMatch;
     public int incorrectMatch;
     public long startTime;
-    public String congratMessage;
+    public String gameOverMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,13 +79,26 @@ public class Grid6x6_Activity extends AppCompatActivity
         buttonDrawables[17] = R.drawable.front_18;
 
         buttonDrawableLocations = new int[numberOf6By6Drawables];
-        randomizeButtonGraphics();
+        randomize6By6Graphics();
+
+        //code for action bar height
+        int actionBarHeight = 0;
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true)){
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(typedValue.data,getResources().getDisplayMetrics());
+        }
+        int statusBarHeight = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if ( resourceId > 0){
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+        int optionBarsHeight = actionBarHeight + statusBarHeight;
 
         for (int r = 0; r < totalRows; r++)
         {
             for (int c = 0; c < totalColumns; c++)
             {
-                MemoryButtonC tempButton = new MemoryButtonC(this, r, c, buttonDrawables[buttonDrawableLocations[r * totalColumns + c]]);
+                MemoryButtonC tempButton = new MemoryButtonC(this, r, c, buttonDrawables[buttonDrawableLocations[r * totalColumns + c]], optionBarsHeight);
                 tempButton.setId(View.generateViewId());
                 tempButton.setOnClickListener(this);
                 buttonCollection[r * totalColumns + c] = tempButton;
@@ -138,7 +152,7 @@ public class Grid6x6_Activity extends AppCompatActivity
         }
     }
 
-    public void randomizeButtonGraphics() {
+    public void randomize6By6Graphics() {
         Random rnd = new Random();
         for (int i = 0; i < numberOf6By6Drawables; i++) {
             buttonDrawableLocations[i] = (i % (numberOf6By6Drawables / 2));
@@ -218,21 +232,21 @@ public class Grid6x6_Activity extends AppCompatActivity
                 elapsedTimeSeconds = elapsedTimeSeconds % 60;
                 elapsedTimeMilliSeconds = elapsedTimeMilliSeconds % 100;
                 if (elapsedTimeMinutes > 0 && elapsedTimeSeconds == 1){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else if (elapsedTimeMinutes > 0){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else if (elapsedTimeSeconds == 1){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else {
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
 
                 new AlertDialog.Builder(this)
                         .setTitle("Result")
-                        .setMessage(congratMessage)
+                        .setMessage(gameOverMessage)
                         .setNegativeButton("Play Again", new DialogInterface.OnClickListener(){
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -275,7 +289,7 @@ public class Grid6x6_Activity extends AppCompatActivity
 class MemoryButtonC extends Button {
 
     //variables to reference the row and column, and the id of the faced down card
-    public int row_6By6,column_6By6;
+    public int row_6By6,column_6By6, actionHeight;
     public int front6By6DrawableValue;
 
     //Reference to the drawable objects()
@@ -286,7 +300,7 @@ class MemoryButtonC extends Button {
     public boolean isMatched = false;
 
     //Default Constructor
-    public MemoryButtonC(Context context, int Row, int Column, int FrontDrawableValue) {
+    public MemoryButtonC(Context context, int Row, int Column, int FrontDrawableValue, int height) {
         //Parent Class Constructor
         super(context);
 
@@ -294,15 +308,19 @@ class MemoryButtonC extends Button {
         this.row_6By6 = Row;
         this.column_6By6 = Column;
         this.front6By6DrawableValue = FrontDrawableValue;
+        this.actionHeight = height;
 
         //initialize the front & back of the card
         front6By6Card = AppCompatDrawableManager.get().getDrawable(context, front6By6DrawableValue);
         backOfCard = AppCompatDrawableManager.get().getDrawable(context, R.drawable.back);
         setBackground(backOfCard);
 
+        int screenWidth = getContext().getResources().getDisplayMetrics().widthPixels / 6;
+        int screenHeight = (getContext().getResources().getDisplayMetrics().heightPixels - this.actionHeight) / 6;
+
         GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(Row), GridLayout.spec(Column));
-        params.width = (int) getResources().getDisplayMetrics().density * 80;
-        params.height = (int) getResources().getDisplayMetrics().density * 116;
+        params.width = screenWidth;
+        params.height = screenHeight;
 
         setLayoutParams(params);
     }

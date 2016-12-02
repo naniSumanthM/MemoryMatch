@@ -1,21 +1,31 @@
 package edu.uc.sumanth.memorymatch;
 
+import android.app.Activity;
+import android.app.ActivityGroup;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatDrawableManager;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Display;
+import android.graphics.Point;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.Toast;
+
 
 
 import java.util.Random;
@@ -35,10 +45,9 @@ public class Grid2x2_Activity extends AppCompatActivity
 
     //added variables
     public final int  FINAL_MATCHES = 2;
-    public int correctMatch;
-    public int incorrectMatch;
+    public int correctMatch,incorrectMatch;
     public long startTime;
-    public String congratMessage;
+    public String gameOverMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +68,25 @@ public class Grid2x2_Activity extends AppCompatActivity
         buttonGraphicLocations = new int[numberOf2By2Drawables];
         randomizeButtonGraphics();
 
+        //code for action bar height
+        int actionBarHeight = 0;
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(R.attr.actionBarSize, typedValue, true)){
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(typedValue.data,getResources().getDisplayMetrics());
+        }
+        int statusBarHeight = 0;
+
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if ( resourceId > 0){
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+        int optionBarsHeight = actionBarHeight + statusBarHeight;
+
         for (int row = 0; row < totalRows; row++)
         {
             for (int column = 0; column < totalColumns; column++)
             {
-                MemoryButton tempButton = new MemoryButton(this, row, column, buttonGraphics[buttonGraphicLocations[row * totalColumns + column]]);
+                MemoryButton tempButton = new MemoryButton(this, row, column, buttonGraphics[buttonGraphicLocations[row * totalColumns + column]], optionBarsHeight);
                 tempButton.setId(View.generateViewId());
                 tempButton.setOnClickListener(this);
                 button2By2Collection[row * totalColumns + column] = tempButton; //Storing the references
@@ -195,20 +218,20 @@ public class Grid2x2_Activity extends AppCompatActivity
                 elapsedTimeSeconds = elapsedTimeSeconds % 60;
                 elapsedTimeMilliSeconds = elapsedTimeMilliSeconds % 100;
                 if (elapsedTimeMinutes > 0 && elapsedTimeSeconds == 1){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else if (elapsedTimeMinutes > 0){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeMinutes + " minutes and " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else if (elapsedTimeSeconds == 1){
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeSeconds + "." + elapsedTimeMilliSeconds + " second and you got " + correctMatch +  " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 else {
-                    congratMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
+                    gameOverMessage = ("Congratulations, your time was " + elapsedTimeSeconds +  "." + elapsedTimeMilliSeconds +  " seconds and you got " + correctMatch + " out of " + matchScore + " correct, Go back to main menu?");
                 }
                 new AlertDialog.Builder(this)
                         .setTitle("Result")
-                        .setMessage(congratMessage)
+                        .setMessage(gameOverMessage)
                         .setNegativeButton("Play Again", new DialogInterface.OnClickListener(){
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -248,12 +271,18 @@ public class Grid2x2_Activity extends AppCompatActivity
             misMatchToast();
         }
     }
+    public static int getWindowHeight(Activity a){
+        int height = a.getWindow().getDecorView().getHeight();
+        return height;
+    }
 }
 
-class MemoryButton extends Button {
+
+
+class MemoryButton extends Button{
 
     //variables to reference the row and column, and the id of the faced down card
-    public int row_2By2,column_2By2;
+    public int row_2By2,column_2By2, actionHeight;
 
     //id of the front drawable value
     public int front2By2DrawableValue;
@@ -266,7 +295,7 @@ class MemoryButton extends Button {
     public boolean isMatched = false;
 
     //Default Constructor
-    public MemoryButton(Context context, int Row, int Column, int FrontDrawableValue)
+    public MemoryButton(Context context, int Row, int Column, int FrontDrawableValue, int height)
     {
         //Parent Class Constructor
         super(context);
@@ -275,15 +304,19 @@ class MemoryButton extends Button {
         this.row_2By2 = Row;
         this.column_2By2 = Column;
         this.front2By2DrawableValue = FrontDrawableValue;
+        this.actionHeight = height;
 
         //initialize the front & back of the card
         front2By2Card = AppCompatDrawableManager.get().getDrawable(context, front2By2DrawableValue);
         backOfCard = AppCompatDrawableManager.get().getDrawable(context, R.drawable.back);
         setBackground(backOfCard);
 
+        int screenWidth = getContext().getResources().getDisplayMetrics().widthPixels / 2;
+        int screenHeight = (getContext().getResources().getDisplayMetrics().heightPixels - this.actionHeight) / 2;
+
         GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(Row),GridLayout.spec(Column));
-        params.width = (int) getResources().getDisplayMetrics().density * 240;
-        params.height = (int) getResources().getDisplayMetrics().density * 350;
+        params.width = screenWidth;
+        params.height = screenHeight;
 
         setLayoutParams(params);
     }
